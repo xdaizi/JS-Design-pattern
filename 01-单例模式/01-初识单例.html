@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>单例模式</title>
+</head>
+<body> 
+    <script>
+        // 01---实现简单的单例模式
+        let singleton = function(name){
+            this.name = name;
+            this.instance = null
+        }
+        singleton.prototype.getName = function(){
+            console.log(this.name)
+        }
+        // singleton.getInstance = function(name){
+        //     if(!this.instance) {
+        //         this.instance = new singleton(name)
+        //     }
+        //     return this.instance
+        // }
+        // 利用闭包
+        singleton.getInstance = (function(){
+            let instance = null
+            return function(name){
+                if(!instance){
+                    instance = new singleton(name)
+                }
+            }
+        })()
+        let a = singleton.getInstance('Tom')
+        let b = singleton.getInstance('Jamy')
+        console.log(a === b)
+    </script>
+</body>
+</html>

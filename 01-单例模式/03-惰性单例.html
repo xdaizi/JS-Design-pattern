@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>惰性单例</title>
+</head>
+<body>
+    <button class="login">登录</button>
+    <script>
+        // 惰性单例 --- 只有当用到时才创建
+        // 例子:弹出窗
+        // 01-------------------------------------------------
+        // 缺点:未点击按钮时,dom就已经创建,浪费性能
+        // let loginBtn = document.querySelector('.login')
+        // let loginLayer = (function(){
+        //     let dom = document.createElement('div')
+        //     dom.innerHTML = '登录框'
+        //     dom.style.display = 'none'
+        //     document.body.appendChild(dom)
+        //     return dom
+        // })()
+        // loginBtn.onclick = function(){
+        //     loginLayer.style.display = 'block'
+        // }
+        // 02---------------------------------------------
+        // 缺点:虽然是点击时创建,但并不是单例,弹出框是单例
+        // let loginBtn = document.querySelector('.login')
+        // let loginLayer = function(){
+        //     let dom = document.createElement('div')
+        //     dom.innerHTML = '登录框'
+        //     dom.style.display = 'none'
+        //     document.body.appendChild(dom)
+        //     return dom
+        // }
+        // loginBtn.onclick = function(){
+        //     let dom = loginLayer()
+        //     dom.style.display = 'block'
+        // }
+        // 03---------------------------------------------------
+        // 缺点:loginLayer即控制单例又控制创建dom,而且可复用性差
+        let loginBtn = document.querySelector('.login')
+        let loginLayer = (function(){
+            let dom = null;
+            return function(){
+                if(!dom){
+                    dom = document.createElement('div')
+                    dom.innerHTML = '登录框'
+                    dom.style.display = 'none'
+                    document.body.appendChild(dom)
+                }
+                return dom
+            }
+        })()
+        loginBtn.onclick = function(){
+            let dom = loginLayer()
+            dom.style.display = 'block'
+        }
+    </script>
+</body>
+</html>

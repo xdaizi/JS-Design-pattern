@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>通用的惰性单例模式</title>
+</head>
+<body>
+    <button class="login">登录</button>
+    <button class="close">关闭</button>
+    <script>
+        let loginBtn = document.querySelector('.login')
+        let closeBtn = document.querySelector('.close')
+        // 保证单例
+        let getSingle = function(fn){
+            let singleObj = null;
+            return function(){
+                if(!singleObj) {
+                    singleObj = fn.apply(this,arguments)
+                }
+                return singleObj
+            }
+        }
+        // 创建对象
+        let getLoginLayer = function(html){
+            let dom = document.createElement('div')
+            dom.innerHTML = html
+            dom.style.display = 'none'
+            document.body.appendChild(dom)
+            return dom
+        }
+        let getSingleDiv = getSingle(getLoginLayer)
+        loginBtn.onclick = function(){
+            let layer = getSingleDiv('弹出框')
+            layer.style.display = 'block'
+        }
+        closeBtn.onclick = function(){
+            let layer = getSingleDiv()
+            layer.style.display = 'none'
+        }
+    </script>
+</body>
+</html>

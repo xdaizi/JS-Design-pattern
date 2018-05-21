@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>单例模式</title>
+</head>
+<body>
+    <script>
+        // 01-透明的单例模式:创建唯一的div
+        // let createDiv = (function(){
+        //     let instance = null;
+        //     let createDiv = function(html){
+        //         if(instance){
+        //             return instance
+        //         }
+        //         this.html = html
+        //         this.init()
+        //         return instance = this
+        //     }
+        //     createDiv.prototype.init = function(){
+        //         let dom = document.createElement('div')
+        //         dom.innerHTML = this.html
+        //         document.body.appendChild(dom)
+        //     }
+        //     return createDiv
+        // })()
+        // let a = new createDiv('a盒子')
+        // let b = new createDiv('b盒子')
+        // // console.log(b)
+        // console.log( a === b)
+        // 上面的函数职责不单一:获取单利对象,创建dom
+        // 02--使用代理模式实现单例
+        // 准备一个创建DIV的类:负责创建div
+        // let createDiv = function(html){
+        //     this.html = html
+        //     this.init()
+        // }
+        // createDiv.prototype.init = function(){
+        //     let dom = document.createElement('div')
+        //     dom.innerHTML = this.html
+        //     document.body.appendChild(dom)
+        // }
+        // // 准备代理对象--负责获取单例对象
+        // let proxySingletonDiv = (function(){
+        //     let instance = null
+        //     return function(html){
+        //         if(!instance){
+        //             instance = new createDiv(html)
+        //         }
+        //         return instance
+        //     }
+        // })()
+        // let a = proxySingletonDiv('a盒子')
+        // let b = proxySingletonDiv('b盒子')
+        // console.log(b)
+        // console.log(a === b)
+        // 利用class实现惰性单例
+        class CreateDiv {
+            constructor(html){
+                this.html = html
+                this.init()
+            }
+            init(){
+                let dom = document.createElement('div')
+                dom.innerHTML = this.html
+                document.body.appendChild(dom)
+            }
+        }
+        let proxySingletonDiv = (function(){
+            let instance = null
+            return function(html){
+                if(!instance){
+                    instance = new CreateDiv(html)
+                }
+                return instance
+            }
+        })()
+        let a = proxySingletonDiv('a盒子')
+        let b = proxySingletonDiv('b盒子')
+        console.log(b)
+        console.log(a === b)
+    </script>
+</body>
+</html>
