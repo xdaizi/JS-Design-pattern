@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>应用举例</title>
+</head>
+<body>
+    <script>
+        // 根据不同的浏览器获取相应的上传组件对象：
+        var getUploadObj = function(){
+        try{
+        return new ActiveXObject("TXFTNActiveX.FTNUpload"); // IE 上传控件
+        }catch(e){
+        if ( supportFlash() ){ // supportFlash 函数未提供
+        var str = '<object type="application/x-shockwave-flash"></object>';
+        return $( str ).appendTo( $('body') );
+        }else{
+        var str = '<input name="file" type="file"/>'; // 表单上传
+        return $( str ).appendTo( $('body') );
+                }
+            }
+        };
+    //     上面的代码，为了得到一个 upload 对象，这个 getUploadObj 函数里面充斥了 try， catch
+    // 以及 if 条件分支。缺点是显而易见的。第一是很难阅读，第二是严重违反开闭原则。 在开发和
+    // 调试过程中，我们需要来回切换不同的上传方式，每次改动都相当痛苦。后来我们还增加支持了
+    // 一些另外的上传方式，比如， HTML5 上传，这时候唯一的办法是继续往 getUploadObj 函数里增
+    // 加条件分支。
+    //     我们把每种获取 upload 对象的方法都封装在各自的函数里，然后使用一个迭代器，
+    // 迭代获取这些 upload 对象，直到获取到一个可用的为止：
+    var getActiveUploadObj = function(){
+        try{
+            return new ActiveXObject( "TXFTNActiveX.FTNUpload" ); // IE 上传控件
+            }catch(e){
+            return false; // 终止迭代
+        }
+    };
+    var getFlashUploadObj = function(){
+        if ( supportFlash() ){ // supportFlash 函数未提供
+            var str = '<object type="application/x-shockwave-flash"></object>';
+            return $( str ).appendTo( $('body') );
+        }
+        return false; // 终止迭代
+    };
+    var getFormUpladObj = function(){
+        var str = '<input name="file" type="file" class="ui-file"/>'; // 表单上传
+        return $( str ).appendTo( $('body') );
+    };
+
+    // 迭代器代码如下
+    const iteratorUploadObj = function(){
+        for(let i = 0, l = arguments.length; i < l; i++) {
+            let fn = arguments[i];
+            if(fn() !== false) {
+                return fn
+            }
+        }
+    }
+    const uploadObj = iteratorUploadObj( getActiveUploadObj, getFlashUploadObj, getFormUpladObj );
+    var getWebkitUploadObj = function(){
+    // 具体代码略
+    };
+    var getHtml5UploadObj = function(){
+    // 具体代码略
+    };
+    //  依照优先级把它们添加进迭代器：
+    var uploadObj = iteratorUploadObj( getActiveUploadObj, getWebkitUploadObj,
+    getFlashUploadObj, getHtml5UploadObj, getFormUpladObj );
+    </script>
+</body>
+</html>
