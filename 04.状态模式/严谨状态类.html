@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>利用父类预报子类是否有对应的方法</title>
+</head>
+<body>
+    <script>
+    // 当状态类过多时难免出现漏写方法，所以可以利用父类来提示 
+    // 定义父类
+    class LightState {
+        buttonWasPressed() {
+            throw new Error('父类的 buttonWasPressed 方法必须被重写')
+        }
+    }
+    // 01 --- 关灯类 继承父类
+    class offLightState extends  LightState{
+            constructor(light) {
+                super();
+                this.light = light;
+            }
+            buttonWasPressed() {
+                console.log('弱光') // 行为
+                this.light.setState(this.light.weakLightState) // 装换状态
+            }
+        }
+        // 02 --- 弱光类
+        class weakLightState extends LightState{
+            constructor(light) {
+                super();
+                this.light = light;
+            }
+            buttonWasPressed() {
+                console.log('强光') // 行为
+                this.light.setState(this.light.strongLightState) // 装换状态
+            }
+        }
+        // 03 --- 强光类
+        class strongLightState extends LightState{
+            constructor(light) {
+                super();
+                this.light = light;
+            }
+            buttonWasPressed() {
+                console.log('关灯') // 行为
+                this.light.setState(this.light.offLightState)
+            }
+        }
+        // 封装light类
+        class Light {
+            constructor() {
+                 // 封存状态
+                this.offLightState = new offLightState(this);
+                this.weakLightState = new weakLightState(this);
+                this.strongLightState = new strongLightState(this);
+                this.button = null;
+            }
+            init() { // 初始化
+                let button = document.createElement( 'button' );
+                let self = this;
+                this.button = document.body.appendChild( button );
+                this.button.innerHTML = '开关';
+                this.currState = this.offLightState; // 设置初始状态
+                this.button.onclick = function(){
+                    self.currState.buttonWasPressed();
+                }
+            }
+            setState(state) { // 改变状态
+                this.currState = state;
+            }
+        }
+        const light = new Light();
+        light.init();
+    </script>
+</body>
+</html>

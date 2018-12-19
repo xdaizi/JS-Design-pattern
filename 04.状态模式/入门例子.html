@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>电灯状态</title>
+</head>
+<body>
+    <script>
+        // // 电灯的状态 按下 关 => 开 ; 开 => 关
+        // let Light = function() {
+        //     this.state = "off";
+        //     this.button = null;
+        //     this.init();
+        // }
+        // //初始化
+        // Light.prototype.init = function() {
+        //     let button = document.createElement('button');
+        //     let self = this;
+        //     button.innerHTML = "开关";
+        //     this.button = document.body.appendChild(button);
+        //     this.button.onclick = function() {
+        //         self.buttonWasPressed();
+        //     }
+        // }
+        // // 定义按钮按下的函数
+        // Light.prototype.buttonWasPressed = function() {
+        //     if(this.state === 'off') {
+        //         this.state = 'on';
+        //         console.log('开灯')
+        //     } else {
+        //         this.state = 'off';
+        //         console.log('关灯')
+        //     }
+        // }
+        // const light = new Light();
+        // 缺点：当灯的状态一多需要在buttonWasPressed中添加else if 分支，代码较多，维护较难
+        // 状态模式：将状态封装成类，不同的状态通过相应的类来渲染
+        // 编写状态类
+        // 01 --- 关灯类
+        class offLightState {
+            constructor(light) {
+                this.light = light;
+            }
+            buttonWasPressed() {
+                console.log('弱光') // 行为
+                this.light.setState(this.light.weakLightState) // 装换状态
+            }
+        }
+        // 02 --- 弱光类
+        class weakLightState {
+            constructor(light) {
+                this.light = light;
+            }
+            buttonWasPressed() {
+                console.log('强光') // 行为
+                this.light.setState(this.light.strongLightState) // 装换状态
+            }
+        }
+        // 03 --- 强光类
+        class strongLightState {
+            constructor(light) {
+                this.light = light;
+            }
+            buttonWasPressed() {
+                console.log('关灯') // 行为
+                this.light.setState(this.light.offLightState)
+            }
+        }
+        // 封装light类
+        class Light {
+            constructor() {
+                 // 封存状态
+                this.offLightState = new offLightState(this);
+                this.weakLightState = new weakLightState(this);
+                this.strongLightState = new strongLightState(this);
+                this.button = null;
+            }
+            init() { // 初始化
+                let button = document.createElement( 'button' );
+                let self = this;
+                this.button = document.body.appendChild( button );
+                this.button.innerHTML = '开关';
+                this.currState = this.offLightState; // 设置初始状态
+                this.button.onclick = function(){
+                    self.currState.buttonWasPressed();
+                }
+            }
+            setState(state) { // 改变状态
+                this.currState = state;
+            }
+        }
+        const light = new Light();
+        light.init();
+    </script>
+</body>
+</html>
