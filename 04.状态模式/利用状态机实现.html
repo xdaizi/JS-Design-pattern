@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>利用状态机实现</title>
+</head>
+<body>
+    <script>
+        // 利用状态机实现电灯的开关 ---- 存在对象中
+        // let FMS = {
+        //     off: {
+        //         buttonWasPressed(){
+        //             console.log('开灯');
+        //             this.btn.innerHTML = '关灯';
+        //             this.setState(FMS.on)
+        //         }   
+        //     },
+        //     on:{
+        //         buttonWasPressed(){
+        //             console.log('关灯');
+        //             this.btn.innerHTML = '开灯';
+        //             this.setState(FMS.off)
+        //         }
+        //     }
+        // }
+        // class Light {
+        //     constructor() {
+        //         this.currentState = FMS.off;
+        //         this.btn = null;
+        //         this.init();
+        //     }
+        //     init() {
+        //         let btnDom = document.createElement('button');
+        //         let self = this;
+        //         btnDom.innerHTML = '开灯';
+        //         this.btn = document.body.appendChild(btnDom);
+        //         this.btn.onclick = function() {
+        //             self.currentState.buttonWasPressed.apply(self,arguments)
+        //         }
+        //     }
+        //     setState(state) {
+        //         this.currentState = state;
+        //     }
+        // }
+        // new Light();
+        // 利用状态机实现电灯的开关 ---- 存在函数中
+        let FMS = {
+            off: {
+                buttonWasPressed() {
+                    console.log('开灯');
+                    this.btn.innerHTML = '关灯';
+                    this.setState('onState')
+                }
+            },
+            on: {
+                buttonWasPressed() {
+                    console.log('关灯');
+                    this.btn.innerHTML = '开灯';
+                    this.setState('offState')
+                }
+            }
+        }
+        const delegate = function(client, delegation) {
+            return {
+                buttonWasPressed(){
+                    return delegation.buttonWasPressed.apply(client)
+                }
+            }
+        }
+        class Light {
+            constructor() {
+                this.offState = delegate(this, FMS.off);
+                this.onState = delegate(this, FMS.on);
+                this.btn = null;
+                this.init();
+                this.currentState = this.offState;
+            }
+            init() {
+                let btnDom = document.createElement('button');
+                let self = this;
+                btnDom.innerHTML = '开灯';
+                this.btn = document.body.appendChild(btnDom);
+                this.btn.onclick = function() {
+                    self.currentState.buttonWasPressed()
+                }
+            }
+            setState(state) {
+                this.currentState = this[state];
+            }
+        }
+        new Light();
+    </script>
+</body>
+</html>
