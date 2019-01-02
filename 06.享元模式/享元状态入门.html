@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>享元状态</title>
+</head>
+<body>
+    <script>
+        // 要求：有个内衣工厂，目前的产品有 50 种男式内衣和 50 种女士内衣，为了推销产品，工厂决定生产一些塑料模特来穿上他们的内衣拍成广告照片
+        // 01 --- 普通做法：50个男模特，50个女模特
+        // class Model {
+        //     constructor(sex,underwear){
+        //         this.sex = sex;
+        //         this.underwear = underwear;
+        //     }
+        //     takePhoto() {
+        //         console.log( 'sex= ' + this.sex + ' underwear=' + this.underwear);
+        //     }
+        // }
+        // for(let i = 0; i< 50; i++) {
+        //     let maleModel = new Model('male', 'underwear' + i)
+        //     maleModel.takePhoto();
+        // }
+        // for(let i = 0; i< 50; i++) {
+        //     let femaleModel = new Model('famale', 'underwear' + i)
+        //     femaleModel.takePhoto();
+        // }
+        // 缺点：
+        //     要得到一张照片，每次都需要传入 sex 和 underwear 参数，如上所述，现在一共有 50 种男内
+        //     衣和 50 种女内衣，所以一共会产生 100 个对象。如果将来生产了 10000 种内衣，那这个程序可
+        //     能会因为存在如此多的对象已经提前崩溃。
+        // 02 --- 享元雏形
+            // 现在来改写一下代码，既然只需要区别男女模特，那我们先把 underwear 参数从构造函数中
+            // 移除，构造函数只接收 sex 参数：只需要两个对象便完成了同样的功能。
+        class Model {
+            constructor(sex,underwear){
+                this.sex = sex;
+            }
+            takePhoto() {
+                console.log( 'sex= ' + this.sex + ' underwear=' + this.underwear);
+            }
+        }
+        for(let i = 0; i < 50; i++) {
+            let maleModel = new Model('male');
+            maleModel.underwear = 'underwear' + i;
+            maleModel.takePhoto();
+        }
+        for(let i = 0; i < 50; i++) {
+            let femaleModel = new Model('famale');
+            femaleModel.underwear = 'underwear' + i;
+            femaleModel.takePhoto();
+        }
+        // 缺点：
+            // 1.我们通过构造函数显式 new 出了男女两个 model 对象，在其他系统中，也许并不是一开始
+            // 就需要所有的共享对象。
+            // 2.给 model 对象手动设置了 underwear 外部状态，在更复杂的系统中，这不是一个最好的方
+            // 式，因为外部状态可能会相当复杂，它们与共享对象的联系会变得困难。
+        // 解决：
+            // 我们通过一个对象工厂来解决第一个问题，只有当某种共享对象被真正需要时，它才从工厂
+            // 中被创建出来（惰性单例）。对于第二个问题，可以用一个管理器来记录对象相关的外部状态，使这些外部状
+            // 态通过某个钩子和共享对象联系起来
+    </script>
+</body>
+</html>

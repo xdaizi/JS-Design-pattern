@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>文件上传</title>
+</head>
+<body>
+    <script>
+        // 假设只有插件和 Flash 这两种,删除文件的功能，对应
+        // 的方法是 Upload.prototype.delFile。该方法中有一个逻辑：当被删除的文件小于 3000 KB 时，该文件上传的例子 
+        // 件将被直接删除。否则页面中会弹出一个提示框，提示用户是否确认要删除该文件
+        // 01 --- 定义文件上传对象
+        class Upload {
+            constructor(uploadType, fileName, fileSize){
+                this.uploadType = uploadType;
+                this.fileName = fileName;
+                this.fileSize = fileSize;
+                this.dom = null
+            }
+            init(id) {
+                let that = this;
+                this.id = id;
+                this.dom = document.createElement('div');
+                this.dom.innerHTML = '<span>文件名称:'+ this.fileName +', 文件大小: '+ this.fileSize +'</span>' +
+                                        '<button class="delFile">删除</button>';
+                this.dom.querySelector('.delFile').onclick = function() {
+                    that.delFile();
+                }
+                document.body.appendChild(this.dom)
+            }
+            delFile() {
+                if(this.fileSize < 3000) {
+                    return this.dom.parentNode.removeChild(this.dom);
+                }
+                if(window.confirm('确定要删除文件吗？' + this.fileName)) {
+                    return this.dom.parentNode.removeChild(this.dom);
+                }
+            }
+        }
+        // 02 --- 文件上传模拟函数
+        let id = 0;
+        window.startUpload = function(uploadType,files) {
+            for(let i = 0, l = files.length; i < l; i++){
+                let file = files[i];
+                let uploadObj = new Upload(uploadType, file.fileName, file.fileSize);
+                uploadObj.init(id++);
+            }
+        }
+        startUpload('plugin', [
+            {
+                fileName: '1.txt',
+                fileSize: 1000
+            },
+            {
+                fileName: '2.html',
+                fileSize: 3000
+            },
+            {
+                fileName: '3.txt',
+                fileSize: 5000
+            }
+        ]);
+        startUpload('flash', [
+            {
+                fileName: '4.txt',
+                fileSize: 1000
+            },
+            {
+                fileName: '5.html',
+                fileSize: 3000
+            },
+            {
+                fileName: '6.txt',
+                fileSize: 5000
+            }
+        ])
+        // 缺点：上传6个文件，创建了6个对象。倘若要上传2000个文件，则需要创建2000个对象。那么就非常占用内存，且每个对象的外部功能一致，只是上传方式有区别。
+        // 且每个对象的功能也会比较多，所以不利于性能。
+    </script>
+</body>
+</html>
