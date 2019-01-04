@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>手机预订例子</title>
+</head>
+<body>
+    <script>
+        // 在正式购买后，已经支付过 500 元定金的用
+        // 户会收到 100 元的商城优惠券， 200 元定金的用户可以收到 50 元的优惠券，而之前没有支付定金
+        // 的用户只能进入普通购买模式，也就是没有优惠券，且在库存有限的情况下不一定保证能买到。
+        //  orderType：表示订单类型（定金用户或者普通购买用户）， code 的值为 1 的时候是 500 元
+        // 定金用户，为 2 的时候是 200 元定金用户，为 3 的时候是普通购买用户。
+        //  pay：表示用户是否已经支付定金，值为 true 或者 false, 虽然用户已经下过 500 元定金的
+        // 订单，但如果他一直没有支付定金，现在只能降级进入普通购买模式。
+        //  stock：表示当前用于普通购买的手机库存数量，已经支付过 500 元或者 200 元定金的用
+        // 户不受此限制
+        // 01 --- 普通做法
+        const order = function(orderType, pay, stock){
+            if(orderType === 1) {
+                if(pay) {
+                    console.log('获得100优惠')
+                } else {
+                    if (stock > 0) {
+                        console.log('普通购买，无优惠')
+                    } else {
+                        console.log('无法购买,库存不足')
+                    }
+                }
+            } else if(orderType === 2) {
+                if(pay) {
+                    console.log('获得50优惠')
+                } else {
+                    if (stock > 0) {
+                        console.log('普通购买，无优惠')
+                    } else {
+                        console.log('无法购买,库存不足')
+                    }
+                }
+            } else if(orderType === 3) {
+                if (stock > 0) {
+                    console.log('普通购买，无优惠')
+                } else {
+                    console.log('无法购买,库存不足')
+                }
+            }
+        }
+        order(1,false,0);
+        console.log('----------------------------------')
+        // 缺点函数过于大，不方便阅读和维护
+        // 02 --- 拆分order，即if/else
+        const orderNomal = function(orderType, pay, stock){
+            if ( stock > 0 ){
+                console.log( '普通购买, 无优惠券' );
+            }else{
+                console.log( '手机库存不足' );
+            }
+        }
+        const order200 = function(orderType, pay, stock){
+            if(orderType === 2 && pay) {
+                console.log('获得50元优惠')
+            } else {
+                orderNomal(orderType, pay, stock)
+            }
+        }
+        const order500 = function(orderType, pay, stock){
+            if(orderType === 1 && pay) {
+                console.log('获得100元优惠')
+            } else {
+                order200(orderType, pay, stock)
+            }
+        }
+        order500( 1 , true, 500); // 输出： 500 元定金预购, 得到 100 优惠券
+        order500( 1, false, 500 ); // 输出：普通购买, 无优惠券
+        order500( 2, true, 500 ); // 输出： 200 元定金预购, 得到 500 优惠券
+        order500( 3, false, 500 ); // 输出：普通购买, 无优惠券
+        order500( 3, false, 0 ); // 输出：手机库存不足
+        // 虽然已经把大函数拆分成了互不影响的 3
+        // 个小函数，但可以看到，请求在链条传递中的顺序非常僵硬，传递请求的代码被耦合在了业务函
+        // 数之中：这依然是违反开放封闭原则的，如果有天我们要增加 300 元预订或者去掉 200 元预订，意
+        // 味着就必须改动这些业务函数内部。就像一根环环相扣打了死结的链条，如果要增加、拆除或者
+        // 移动一个节点，就必须得先砸烂这根链条。
+    </script>
+</body>
+</html>
