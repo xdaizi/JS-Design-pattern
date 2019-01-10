@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>宏观命令</title>
+</head>
+<body>
+    <button id="button">按我</button>
+    <script>
+        class MacroCommand {
+            constructor() {
+                this.commandsList = []; // 存储命令
+            }
+            add(command) { // 添加命令
+                this.commandsList.push(command)
+            }
+            execute() { // 执行命令
+                for(let i = 0,command; command = this.commandsList[ i++ ];){
+                    command.execute();
+                }
+            }
+        }
+        const openAcCommand = {
+            execute:function(){
+                console.log('打开空调')
+            }
+        }
+        const openTv = {
+            execute:function(){
+                console.log('打开电视')
+            }
+        }
+        const openSoundCommand = {
+            execute:function(){
+                console.log('打开音响')
+            }
+        }
+        const macroCommand1 = new MacroCommand();
+        macroCommand1.add(openTv);
+        macroCommand1.add(openSoundCommand);
+        const closeDoorCommand = {
+            execute: function(){
+                console.log( '关门' );
+            }
+        };
+        const openPcCommand = {
+            execute: function(){
+                console.log( '开电脑' );
+            }
+        }
+        const openQQCommand = {
+            execute: function(){
+                console.log( '登录 QQ' );
+            }
+        };
+        const macroCommand2 = new MacroCommand();
+        macroCommand2.add( closeDoorCommand );
+        macroCommand2.add( openPcCommand );
+        macroCommand2.add( openQQCommand );
+        const macroCommand = new MacroCommand();
+        macroCommand.add( openAcCommand );
+        macroCommand.add( macroCommand1 );
+        macroCommand.add( macroCommand2 );
+        var setCommand = (function( command ){
+            document.getElementById( 'button' ).onclick = function(){
+            command.execute();
+        }
+        })( macroCommand );
+        // 组合对象可以拥有子节点，叶对象下面就没有子节点， 所以我们也许会发生一些误操作，
+// 比如试图往叶对象中添加子节点。解决方案通常是给叶对象也增加 add 方法，并且在调用这个方
+// 法时，抛出一个异常来及时提醒客户
+    </script>
+</body>
+</html>
