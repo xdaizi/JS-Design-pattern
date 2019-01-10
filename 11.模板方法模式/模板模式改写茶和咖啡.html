@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>模板模式改写茶和咖啡</title>
+</head>
+<body>
+    <script>
+        // 01 -- 抽象类（用于子类继承）:封装通用的方法
+        class Beverage {
+            boilWater() {
+                console.log('把水煮沸')
+            }
+            brew() { // 用沸水冲泡饮料
+                throw new Error('子类必须复写brew方法')
+            }
+            pourInCup() { // 饮料倒在杯中
+                throw new Error('子类必须复写pourInCup方法')
+            }
+            addCondiments() { // 加调料
+                throw new Error('子类必须复写addCondiments方法')
+            }
+            init() {
+                this.boilWater();
+                this.brew();
+                this.pourInCup();
+                this.addCondiments();
+            }
+        }
+        // 02 --- 具体类(用于常见对象)
+        class Tea extends Beverage{
+            constructor() {
+                super()
+            }
+            brew() {
+                console.log( '用沸水浸泡茶叶' );
+            }
+            pourInCup() {
+                console.log( '把茶倒进杯子' );
+            }
+            addCondiments() {
+                console.log( '加柠檬' );
+            }
+        }
+        let tea = new Tea();
+        tea.init();
+        class Coffee extends Beverage{
+            constructor() {
+                super()
+            }
+            brew() {
+                console.log( '用沸水冲泡咖啡' );
+            }
+            pourInCup() {
+                console.log( '把咖啡倒进杯子' );
+            }
+            addCondiments() {
+                console.log( '加糖和牛奶' );
+            }
+        }
+        let coffee = new Coffee();
+        coffee.init();
+    </script>
+</body>
+</html>

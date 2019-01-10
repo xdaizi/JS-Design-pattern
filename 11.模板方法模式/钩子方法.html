@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>钩子方法</title>
+</head>
+<body>
+    <script>
+    //         钩子方法（hook）可以用来解决这个问题，放置钩子是隔离变化的一种常见手段。我们在
+    // 父类中容易变化的地方放置钩子，钩子可以有一个默认的实现，究竟要不要“挂钩”，这由
+    // 子类自行决定。钩子方法的返回结果决定了模板方法后面部分的执行步骤，也就是程序接
+    // 下来的走向，
+    class Beverage {
+        boilWater() {
+            console.log('把水煮沸')
+        }
+        brew() { // 用沸水冲泡饮料
+            throw new Error('子类必须复写brew方法')
+        }
+        pourInCup() { // 饮料倒在杯中
+            throw new Error('子类必须复写pourInCup方法')
+        }
+        addCondiments() { // 加调料
+            throw new Error('子类必须复写addCondiments方法')
+        }
+        customerWantsCondiments() { // 钩子函数 --- 是否需要加调料
+            return true
+        }
+        init() {
+            this.boilWater();
+            this.brew();
+            this.pourInCup();
+            if(this.customerWantsCondiments()) {
+                this.addCondiments();
+            }
+        }
+    }
+    class Tea extends Beverage{
+            constructor() {
+                super()
+            }
+            brew() {
+                console.log( '用沸水浸泡茶叶' );
+            }
+            pourInCup() {
+                console.log( '把茶倒进杯子' );
+            }
+            addCondiments() {
+                console.log( '加柠檬' );
+            }
+            customerWantsCondiments() { // 子类通过复写钩子条件来改变算法的运行
+                return window.confirm('是否添加调料')
+            }
+        }
+        let tea = new Tea();
+        tea.init();
+    </script>
+</body>
+</html>
