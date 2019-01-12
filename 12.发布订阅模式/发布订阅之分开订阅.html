@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>发布订阅之分开订阅</title>
+</head>
+<body>
+    <script>
+        // 只订阅自己感兴趣的消息 --- 已key来区分
+        // 01 -- 准备发布者
+        let salesOffices = {};
+        salesOffices.clientListen = {};
+        salesOffices.listen = function(key, fn) {
+            if(!this.clientListen[key]) {
+                this.clientListen[key] = [];
+            }
+            this.clientListen[key].push(fn)
+        }
+        salesOffices.trigger = function() {
+            let key = Array.prototype.shift.call(arguments);// key ,参数1， 参数2， 参数3
+            let listenArr = this.clientListen[key];
+            if(!listenArr || listenArr.lenght === 0) {
+                return;
+            }
+            for(let i = 0, l = listenArr.length; i < l; i++) {
+                let cb = listenArr[i];
+                cb.apply(this,arguments);
+            }
+        }
+        salesOffices.listen('lis1', function(price,squareMeter){
+            console.log('lis1订阅的消息');
+            console.log('价格是' + price);
+            console.log('面积是' + squareMeter);
+        })
+        salesOffices.listen('lis2', function(price,squareMeter){
+            console.log('lis2订阅的消息');
+            console.log('价格是' + price);
+            console.log('面积是' + squareMeter);
+        })
+        // 02 --- 发布消息
+        salesOffices.trigger('lis1', '200W', '100')
+        salesOffices.trigger('lis2', '100W', '60')
+    </script>
+</body>
+</html>

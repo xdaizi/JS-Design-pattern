@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>后订阅的实现</title>
+</head>
+<body>
+    <script>
+        // 一般是先订阅后发布消息,有时也有可能先发布后订阅，如ajax请求完成后去触发一个事件
+        // 有可能其他模块还有加载订阅，此时需要将订阅的事件缓存在一个离线的栈中，当发布事件时，
+        // 开始遍历离线栈，逐个通知
+        const _event = {
+            clientListen: {}, // 缓存对象
+            offlineMsg: {}, // 离线消息
+            $on: function(key, fn) { // 增加监听
+                if(typeof key !== 'string' || typeof fn !== 'function') {
+                    throw new Error('参数有吴！！！')
+                }
+                if(!this.clientListen[key]) {
+                    this.clientListen[key] = []
+                }
+                this.clientListen[key].push(fn)
+            },
+            $emit: function() { // 触发
+                let key = [].shift.call(arguments);
+                let fns = this.clientListen[key];
+                if(!fns || fns.length === 0) {
+                    
+                }
+                for(let i = 0, fm; fn = fns[i++];) {
+                    fn.apply(this,arguments);
+                }
+            },
+            _catchOffline: function() { // 存储离线任务
+
+            },
+            _triggerOffline: function() { // 触发离线任务
+
+            },
+            $remove: function() { // 取消监听
+                let key = [].shift.call(arguments);
+                let fn = [].shift.call(arguments);
+                let fns = this.clientListen[key];
+                if(!fns || fns.length === 0) { // 没有对应监听列表，或者监听列表为空则return
+                    return;
+                }
+                if(!fn) { // 没有传具体的监听函数
+                    fns && (fns.length = 0)
+                } else {
+                    for(let i = 0, l = fns.length; i < l; i++) { // 遍历找到相同的去掉
+                        let _fn = fns[i];
+                        if(_fn === fn) {
+                            fns.splice(i, 1);
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

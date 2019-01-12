@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>移除监听</title>
+</head>
+<body>
+    <script>
+        // call(this, 参数1，参数2， 参数3)
+        // apply(this, [参数1，参数2，参数3])
+        // argunments: 伪数组
+        // 移除监听
+        const _event = {
+            clientListen: {}, // 缓存对象
+            $on: function(key, fn) { // 增加监听
+                if(typeof key !== 'string' || typeof fn !== 'function') {
+                    throw new Error('参数有吴！！！')
+                }
+                if(!this.clientListen[key]) {
+                    this.clientListen[key] = []
+                }
+                this.clientListen[key].push(fn)
+            },
+            $emit: function() { // 触发
+                let key = [].shift.call(arguments);
+                let fns = this.clientListen[key];
+                for(let i = 0, fm; fn = fns[i++];) {
+                    fn.apply(this,arguments);
+                }
+            },
+            $remove: function() { // 取消监听
+                let key = [].shift.call(arguments);
+                let fn = [].shift.call(arguments);
+                let fns = this.clientListen[key];
+                if(!fns || fns.length === 0) { // 没有对应监听列表，或者监听列表为空则return
+                    return;
+                }
+                if(!fn) { // 没有传具体的监听函数
+                    fns && (fns.length = 0)
+                } else {
+                    for(let i = 0, l = fns.length; i < l; i++) { // 遍历找到相同的去掉
+                        let _fn = fns[i];
+                        if(_fn === fn) {
+                            fns.splice(i, 1);
+                        }
+                    }
+                }
+            }
+        }
+        _event.$on('lis1', fn0 = function(name, age){
+            console.log('lis1的订阅');
+            console.log('姓名是' + name + '年龄是' + age)
+        })
+        _event.$on('lis1', fn1 = function(name, age){
+            console.log('lis1触发第二个消息')
+        })
+        _event.$on('lis2', fn2 = function(name, age){
+            console.log('lis2的订阅');
+            console.log('姓名是' + name + '年龄是' + age)
+        })
+        _event.$emit('lis1', '小明', 18)
+        _event.$emit('lis2', '小红', 17)
+        console.log('--------分割线------')
+        _event.$remove('lis2')
+        _event.$emit('lis1', '小明', 18)
+        _event.$emit('lis2', '小红', 17)
+    </script>
+</body>
+</html>

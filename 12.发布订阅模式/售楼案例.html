@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>售楼案例</title>
+</head>
+<body>
+    <script>
+        // 实现发布订阅者的步骤
+        // 1. 首先要指定好谁充当发布者（比如售楼处）；
+        // 2. 然后给发布者添加一个缓存列表，用于存放回调函数以便通知订阅者（售楼处的花名册）；
+        // 3. 最后发布消息的时候，发布者会遍历这个缓存列表，依次触发里面存放的订阅者回调函
+        // 数
+        // 01 --- 创建发布者
+        const salesOffices = {};
+        salesOffices.clientList = []; // 事件缓存列表
+        salesOffices.listen = function(fn){ // 添加订阅者功能
+            this.clientList.push(fn)
+        }
+        salesOffices.trigger = function() { // 发布消息
+            for(let i = 0, fn; fm = this.clientList[i++];) {
+                fm.apply(this, arguments) // arguments为带上的参数
+            }
+        }
+        // a订阅者
+        salesOffices.listen(function(price, squareMeter){
+            console.log('价格是' + price)
+            console.log('面积是' + squareMeter)
+        })
+        // b订阅者
+        salesOffices.listen(function(price, squareMeter){
+            console.log('价格是' + price)
+            console.log('面积是' + squareMeter)
+        })
+        // 发消息
+        salesOffices.trigger('200w', 100);
+        salesOffices.trigger('300w', 160);
+    </script>
+</body>
+</html>
