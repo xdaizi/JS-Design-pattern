@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>发布订阅模式对象</title>
+</head>
+<body>
+    <script>
+        // 发布订阅模式对象
+        // 利用闭包和get保护对象
+       let Event = (function(){
+            let eventObj = {
+                    clientListen: {},
+                    offlineMsg: {},
+                    $on(key, fn) { // 增加监听
+                        if(typeof key !== 'string' || typeof fn !== 'function') {
+                            throw new Error('参数有误！！！')
+                        }
+                        if(!this.clientListen[key]) {
+                            this.clientListen[key] = []
+                        }
+                        if(this.offlineMsg[key]) { // 先监听后出发
+                            eventObj._triggerOffline(key, fn)
+                        }
+                        this.clientListen[key].push(fn)
+                    },
+                    $one() { // 只监听该消息一次
+                        let key = [].shift.call(arguments);
+                        let fn = [].shift.call(arguments);
+                        fn = eventObj._oneEmit(fn)
+                        this.$on(key, fn);
+                    },
+                    $emit() { // 触发
+                        let key = [].shift.call(arguments);
+                        let fns = this.clientListen[key];
+                        eventObj._catchOffline(key, arguments); // 存到缓存队列 带参数
+                        if(!fns || fns.length === 0) return;
+                        for(let i = 0, fn; fn = fns[i++];) {
+                            fn.apply(this,arguments);
+                        }
+                    },
+                    $remove() { // 取消监听
+                        let key = [].shift.call(arguments);
+                        let fn = [].shift.call(arguments);
+                        !fn && (eventObj._removeOffline(key)) // 全部移除时就移除离线事件
+                        let fns = this.clientListen[key];
+                        if(!fns || fns.length === 0) { // 没有对应监听列表，或者监听列表为空则return
+                            return;
+                        }
+                        if(!fn) { // 没有传具体的监听函数
+                            fns && (fns.length = 0)
+                        } else {
+                            for(let i = 0, l = fns.length; i < l; i++) { // 遍历找到相同的去掉
+                                let _fn = fns[i];
+                                if(_fn === fn) {
+                                    fns.splice(i, 1);
+                                }
+                            }
+                        }
+                    },
+                    _oneEmit(fn) { // 包装只监听一次的函数
+                        return (function(){
+                            let hasEmit = false;
+                            return function() {
+                                if(hasEmit) return;
+                                fn.apply(fn, arguments)
+                                hasEmit = true
+                            }
+                        })()
+                    },
+                    _catchOffline(key, arg) {// 存储离线任务
+                        this.offlineMsg[key] = arg
+                    },
+                    _triggerOffline(key, fn) { // 触发离线任务
+                        let arg = this.offlineMsg[key];
+                        fn.apply(fn, arg);
+                    },
+                    _removeOffline(key) { // 删除离线任务
+                        delete this.offlineMsg.key
+                    }
+            }
+            // 利用get 从而避免误操作给方法赋值
+            class Event {
+                constructor() {
+
+                }
+                get $on() {
+                    return eventObj.$on
+                }
+                get $one() {
+                    return eventObj.$one
+                }
+                get $emit() {
+                    return eventObj.$emit
+                }
+                get $remove() {
+                    return eventObj.$remove
+                }
+                get offlineMsg() {
+                    return eventObj.offlineMsg
+                }
+                get clientListen() {
+                    return eventObj.clientListen
+                }
+            }
+            return Event
+        })()
+        const _event = new Event();
+        _event.$on = null;
+        _event.$emit = null;
+        // // 测试先监听
+        _event.$on('text', (str) => {
+            console.log('先监听' + str);
+        })
+        _event.$emit('text','测试一下');
+        _event.$on('text', (str) => {
+            console.log('后监听' + str);
+        })
+        setTimeout(() => {
+            _event.$on('text', (str) => {
+                console.log('来自两秒之后的监听' + str);
+            })
+        }, 2000)
+        // // 测试正常
+        _event.$on('kkk', (str) => {
+            console.log(str)
+        })
+        _event.$emit('kkk','螺旋丸');
+        // 测试先发布
+        _event.$emit('fn1','千鸟');
+        _event.$on('fn1', (str) => {
+            console.log(str);
+        })
+        console.log('------------------');
+        // 只执行一次
+        let cb = function(str) {
+            console.log('只执行一次' + str);
+        }
+        _event.$one('fn2', cb)
+        _event.$on('fn1', cb)
+        _event.$emit('fn2', '风筝');
+        _event.$emit('fn2', '海洋');
+        console.log('---------------------');
+        // 先发布的触发一次
+        let cb2 = function(str) {
+            console.log('只执行一次2' + str);
+        }
+        _event.$on('fn3', (str) => {
+            console.log('正常监听' + str)
+        });
+        _event.$emit('fn3', '低于');
+        _event.$one('fn3', cb2)
+        _event.$emit('fn3', '地狱');
+    </script>
+</body>
+</html>
