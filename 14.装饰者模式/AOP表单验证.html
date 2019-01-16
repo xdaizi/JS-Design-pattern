@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>插件式表单验证</title>
+</head>
+<body>
+    用户名： <input id="username" type="text"/>
+    密码： <input id="password" type="password"/>
+    <input id="submitBtn" type="button" value="提交">
+    <script>
+    // 插件式表单验证
+    //     在表单数据提交给后台之前，常常要做一些校验，比如登录的时
+    // 候需要验证用户名和密码是否为空
+    // 01 --- 普通做法
+    let username = document.getElementById( 'username' ),
+        password = document.getElementById( 'password' ),
+        submitBtn = document.getElementById( 'submitBtn' );
+        let ajax = function(type, url, param){
+            console.dir(param);
+            // 发送 ajax 请求的代码略
+        };
+        // let formSubmit = function(){
+        //     // 校验
+        //     if ( username.value === '' ){
+        //         return alert ( '用户名不能为空' );
+        //     }
+        //     if ( password.value === '' ){
+        //         return alert ( '密码不能为空' );
+        //     }
+        //     // 上传
+        //     let param = {
+        //         username: username.value,
+        //         password: password.value
+        //     }
+        //     ajax( 'post', 'http:// xxx.com/login', param ); // ajax 具体实现略
+        // }
+        // submitBtn.onclick = function(){
+        //     formSubmit();
+        // }
+        //         formSubmit 函数在此处承担了两个职责，除了提交 ajax 请求之外，还要验证用户输入的合法
+        // 性。这种代码一来会造成函数臃肿，职责混乱，二来谈不上任何可复用性。
+        // 本节的目的是分离校验输入和提交 ajax 请求的代码，我们把校验输入的逻辑放到 validata
+        // 函数中，并且约定当 validata 函数返回 false 的时候，表示校验未通过
+        // var validata = function(){
+        //     if ( username.value === '' ){
+        //         alert ( '用户名不能为空' );
+        //         return false;
+        //     }
+        //     if ( password.value === '' ){
+        //         alert ( '密码不能为空' );
+        //         return false;
+        //     }
+        // }
+        // var formSubmit = function(){
+        //     if ( validata() === false ){ // 校验未通过
+        //         return;
+        //     }
+        //     var param = {
+        //         username: username.value,
+        //         password: password.value
+        //     }
+        //     ajax( 'post','http:// xxx.com/login', param );
+        // }
+        // submitBtn.onclick = function(){
+        //     formSubmit();
+        // }
+    // 现在的代码已经有了一些改进，我们把校验的逻辑都放到了 validata 函数中，但 formSubmit
+    // 函数的内部还要计算 validata 函数的返回值，因为返回值的结果表明了是否通过校验。
+    // 接下来进一步优化这段代码，使 validata 和 formSubmit 完全分离开来。首先要改写 Function.
+    // prototype.before， 如果 beforefn 的执行结果返回 false，表示不再执行后面的原函数
+    Function.prototype.before = function(beforeFn){
+        let _self = this;
+        return function(){
+            if(beforeFn.apply(this, arguments) === false) return;
+            return _self.apply(this, arguments);
+        }
+    }
+    let validata = function(){
+        if ( username.value === '' ){
+            alert ( '用户名不能为空' );
+            return false;
+        }
+        if ( password.value === '' ){
+            alert ( '密码不能为空' );
+            return false;
+        }
+    }
+    let formSubmit = function(){
+        let param = {
+            username: username.value,
+            password: password.value
+        }
+        ajax('post', 'http:// xxx.com/login', param );
+    }
+    formSubmit = formSubmit.before(validata);
+    submitBtn.onclick = function(){
+        formSubmit();
+    }
+    </script>
+</body>
+</html>

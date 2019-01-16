@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>AOP动态改变参数</title>
+</head>
+<body>
+    <script>
+        // 如ajax请求中带上token之类的，或者公共参数之类的
+        // let ajax = function( type, url, param ){
+        //     console.dir(param);
+        //     // 发送 ajax 请求的代码略
+        // };
+        // ajax( 'get', 'http:// xxx.com/userinfo', { name: 'sven' } );
+        // 直到有一天，我们的网站遭受了
+        // CSRF 攻击。解决 CSRF 攻击最简单的一个办法就是在 HTTP 请求中带上一个 Token 参数。
+        // 假设我们已经有一个用于生成 Token 的函数：
+        // let getToken = function(){
+        //     return 'Token';
+        // }
+        // let ajax = function( type, url, param ){
+        //     param = param || {};
+        //     param.Token = getToken(); // 发送 ajax 请求的代码略...
+        //     console.log(param)
+        // };
+        // ajax( 'get', 'http:// xxx.com/userinfo', { name: 'sven' } );
+        // 也许另一个项目不需要验证 Token，或者是 Token 的生成方式不同，无论是哪种情况，都必
+        // 须重新修改 ajax 函数
+        Function.prototype.before = function(fn) {
+            let _self = this; // 保存原函数的引用
+            return function() {
+                fn.apply(this, arguments);
+                return _self.apply(this, arguments); // 返回原函数的返回值
+            }
+        }
+        // 真正的请求
+        let ajax = function(type, url, param){
+            console.dir(param);
+            // 发送 ajax 请求的代码略
+        };
+        // 获取token
+        let getToken = function(){
+            return 'Token';
+        }
+        // 添加token
+        let addToken = function(type, url, param) {
+            param = param || {};
+            param.token = getToken();
+        }
+        ajax = ajax.before(addToken)
+        ajax( 'get', 'http:// xxx.com/userinfo', { name: 'sven' } );
+    </script>
+</body>
+</html>
