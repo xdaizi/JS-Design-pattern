@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>送花</title>
+</head>
+<body>
+    <script>
+        // A => B
+            // let Flower = function(){};
+            // let A = {
+            //     sendFlower: function(target){
+            //         let flower = new Flower();
+            //         target.receiveFlower(flower);
+            //     }
+            // }
+            // let B = {
+            //     receiveFlower: function(flower){
+            //         console.log('收到花' + flower)
+            //     }
+            // }
+            // A.sendFlower(B);
+        // A => C => B 引入代理C
+            // let Flower = function(){}; 
+            // let A = {
+            //     sendFlower: function(target){
+            //         let flower = new Flower();
+            //         target.receiveFlower(flower);
+            //     }
+            // }
+            // let C = { // 代理
+            //     receiveFlower: function(flower){
+            //         B.receiveFlower(flower)
+            //     }
+            // }
+            // let B = {
+            //     receiveFlower: function(flower){
+            //         console.log('通过代理收到花' + flower)
+            //     }
+            // }
+            // A.sendFlower(C);
+        // A => C (适当的时候)  => B 当本体对象愿意接受时，代理对象才会把请求给到
+            // let Flower = function(){}; 
+            // let A = {
+            //     sendFlower: function(target){
+            //         let flower = new Flower();
+            //         target.receiveFlower(flower);
+            //     }
+            // }
+            // let C = { // 代理
+            //     receiveFlower: function(flower){
+            //         B.listenGood(function(){
+            //             B.receiveFlower(flower)
+            //         })
+            //     }
+            // }
+            // let B = {
+            //     listenGood: function(fn){
+            //        setTimeout(()=>{
+            //            console.log('2S后心情好');
+            //            fn();
+            //        }, 2000)
+            //     },
+            //     receiveFlower: function(flower){
+            //         console.log('通过代理收到花' + flower)
+            //     }
+            // }
+            // A.sendFlower(C);
+        // A => C (本体对象需要的时候才去创建一些开销大的对象)  => B
+            let Flower = function(){}; 
+            let A = {
+                sendFlower: function(target){
+                    target.receiveFlower(18);
+                }
+            }
+            let D = {
+                sendFlower: function(target){
+                    target.receiveFlower(50);
+                }
+            }
+            let C = { // 代理
+                receiveFlower: function(age){
+                    if(age > 30) { // 保护代理
+                        console.log('拒绝年龄大于18的')
+                        return;
+                    }
+                    B.listenGood(function(){
+                        let flower = new Flower(); // 需要时才创建
+                        B.receiveFlower(flower)
+                    })
+                }
+            }
+            let B = {
+                listenGood: function(fn){
+                   setTimeout(()=>{
+                       console.log('2S后心情好');
+                       fn();
+                   }, 2000)
+                },
+                receiveFlower: function(flower){
+                    console.log('通过代理收到花' + flower)
+                }
+            }
+            A.sendFlower(C);
+            D.sendFlower(C);
+    </script>
+</body>
+</html>
