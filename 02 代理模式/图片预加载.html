@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>图片预加载</title>
+</head>
+<body>
+    <script>
+        // 虚拟代理实现图片预加载
+        // 01 --- 本体对象
+        let myImg = (function(){
+            let imgDom = document.createElement('img');
+            document.body.appendChild(imgDom);
+            return {
+                setSrc(src){
+                    imgDom.src = src
+                }
+            }
+        })()
+        // 02 -- 代理对象
+        let proxyImage = (function(){
+            let img = new Image;
+            img.onload = function() {
+                setTimeout(()=>{
+                    myImg.setSrc(this.src)
+                }, 2000)
+            };
+            return {
+                setSrc: function(src){
+                    myImg.setSrc('./1.jpg');
+                    img.src = src;
+                }
+            }
+        })()
+        // 接口一致后续去掉代理对象也可以
+        proxyImage.setSrc('http://img5.imgtn.bdimg.com/it/u=3365018759,2226705862&fm=26&gp=0.jpg')
+    </script>
+</body>
+</html>
